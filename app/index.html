@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cloud Tune</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Noto+Serif+JP:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css?v=20260614-1342" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-label="Cloud Tune">
+        <header class="topbar">
+          <div class="brand-block">
+            <img class="brand-logo" src="/static/cloud_tune_logo.png?v=20260614-0435" alt="Cloud Tune" />
+            <h1>ソラの写真から、<br />まだ知らない一曲へ。</h1>
+            <p class="hero-copy">写真を選ぶと似たソラに紐づいたMusicをオススメします</p>
+          </div>
+        </header>
+
+        <div class="hero-workbench tab-panel is-active" id="searchPanel" data-panel="search">
+          <section class="upload-panel" aria-labelledby="uploadTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">えらぶ</p>
+                <h2 id="uploadTitle">このソラで探す</h2>
+              </div>
+              <span class="status-pill" id="statusPill">選択前</span>
+            </div>
+
+            <label class="drop-zone" id="dropZone">
+              <input id="fileInput" type="file" accept="image/*" />
+              <span class="drop-mark">+</span>
+              <span class="drop-title">ソラの写真をアップロード</span>
+              <span class="drop-meta">JPG / PNG / WEBP</span>
+            </label>
+
+            <section class="sample-section" aria-labelledby="sampleTitle">
+              <div class="sample-heading">
+                <h3 id="sampleTitle">サンプルのソラで試す</h3>
+                <span id="sampleCount">--</span>
+              </div>
+              <div class="sample-list" id="sampleList"></div>
+            </section>
+
+            <figure class="query-preview" id="queryPreviewWrap">
+              <img id="queryPreview" alt="アップロードしたソラの写真" />
+            </figure>
+
+            <section class="search-mood-panel" aria-labelledby="searchMoodTitle">
+              <div class="inline-heading">
+                <h3 id="searchMoodTitle">感情ラベル</h3>
+                <span>必須</span>
+              </div>
+              <div class="search-mood-map" id="searchMoodMap"></div>
+              <p class="form-message" id="searchMoodMessage">写真を選んでから、図の上で気分に近い位置を押してください。</p>
+            </section>
+
+          </section>
+
+          <section class="results-panel" aria-labelledby="resultTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">とどいた</p>
+                <h2 id="resultTitle">誰かのソラから届いた3曲</h2>
+              </div>
+              <button class="text-button" id="clearButton" type="button">別のソラで</button>
+            </div>
+
+            <div class="result-empty" id="resultEmpty">
+              <p>写真と感情ラベルを入力すると、ここに3曲が届きます。</p>
+            </div>
+            <div class="recommendation-grid" id="recommendationGrid"></div>
+            <form class="search-register-form is-hidden" id="searchRegisterForm">
+              <div class="inline-heading">
+                <h3>入力した写真のMusicを登録</h3>
+                <span>写真に対応</span>
+              </div>
+              <p class="form-message">入力した写真に対応したYouTube Musicリンクを登録してね！</p>
+              <label class="url-field">
+                <span>対応するYouTube Musicリンク</span>
+                <input
+                  class="url-input"
+                  id="searchMusicUrlInput"
+                  type="url"
+                  placeholder="https://music.youtube.com/watch?v=..."
+                />
+              </label>
+              <button class="primary-action" id="searchRegisterButton" type="submit">登録</button>
+              <p class="form-message" id="searchRegisterMessage" aria-live="polite"></p>
+            </form>
+          </section>
+        </div>
+
+        <section class="library-panel tab-panel" id="libraryPanel" data-panel="library" aria-labelledby="libraryTitle" hidden>
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">登録</p>
+              <h2 id="libraryTitle">ソラとMusicを登録</h2>
+            </div>
+            <button class="text-button refresh-button" id="refreshLibraryButton" type="button">更新</button>
+          </div>
+
+          <div class="library-workbench">
+            <form class="register-form" id="registerForm">
+              <label class="register-photo">
+                <input id="registerFileInput" type="file" accept="image/*" required />
+                <span>写真を選ぶ</span>
+              </label>
+              <label class="url-field">
+                <span>YouTube Musicリンク</span>
+                <input
+                  class="url-input"
+                  id="musicUrlInput"
+                  type="url"
+                  placeholder="https://music.youtube.com/watch?v=..."
+                  required
+                />
+              </label>
+              <button class="primary-action" id="registerButton" type="submit">登録</button>
+              <p class="form-message" id="registerMessage" aria-live="polite"></p>
+            </form>
+
+            <div class="library-list-wrap">
+              <div class="library-heading">
+                <h3>データベース</h3>
+                <span id="libraryCount">--</span>
+              </div>
+              <div class="library-grid" id="libraryGrid"></div>
+            </div>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+    <template id="recommendationTemplate">
+      <article class="recommendation-card">
+        <div class="image-frame">
+          <img class="match-image" alt="推薦元になった登録写真" />
+        </div>
+        <div class="card-body">
+          <div class="card-topline">
+            <span class="slot-label"></span>
+          </div>
+          <div class="card-actions">
+            <a class="primary-link" target="_blank" rel="noreferrer">YouTube Music</a>
+            <button class="ghost-button" data-action="liked" type="button">よかった</button>
+            <button class="ghost-button" data-action="disliked" type="button">違う</button>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <template id="libraryTemplate">
+      <article class="library-card">
+        <img class="library-image" alt="登録されたソラの写真" />
+        <div class="library-body">
+          <span class="library-id"></span>
+          <a class="library-link" target="_blank" rel="noreferrer">YouTube Music</a>
+        </div>
+      </article>
+    </template>
+
+    <dialog class="image-dialog" id="imageDialog">
+      <button class="dialog-close" id="dialogCloseButton" type="button" aria-label="閉じる">×</button>
+      <img id="dialogImage" alt="選択したソラの写真" />
+    </dialog>
+
+    <script src="/static/app.js?v=20260614-1255"></script>
+  </body>
+</html>
